@@ -32,7 +32,11 @@ RUN yum install -y \
         gdb \
         valgrind \
         vim-common \
-        vim-runtime
+        vim-runtime \
+        centos-release-scl \
+        devtoolset-11
+ENV PATH=/opt/rh/devtoolset-11/root/usr/bin${PATH:+:${PATH}} \
+        LD_LIBRARY_PATH=/opt/rh/devtoolset-11/root/usr/lib64/dyninst:/opt/rh/devtoolset-11/root/usr/lib64
 
 # OpenSSL 3.1 requires perl-IPC-Cmd
 
