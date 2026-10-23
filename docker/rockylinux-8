@@ -1,5 +1,5 @@
 ARG BUILD_ENV=nocerts
-FROM rockylinux:8 as os-init
+FROM rockylinux/rockylinux:8 as os-init
 LABEL maintainer="Brad Aagaard <baagaard@usgs.gov>"
 
 ENV BUILD_ENV=${BUILD_ENV}

@@ -16,7 +16,7 @@ RUN apt update \
     curl \
     ssh \
     python3-dev \
-    libpython3.12 \
+    libpython3.14 \
     python3-venv \
     python3-pip \
     python3-setuptools \
@@ -25,7 +25,7 @@ RUN apt update \
     git \
     ca-certificates \
     libopenmpi-dev \
-    libopenmpi3 \
+    libopenmpi40 \
     openmpi-bin \
     openmpi-common \
     libhdf5-openmpi-dev \
@@ -58,7 +58,7 @@ from build-${BUILD_ENV} as build-env
 
 ENV TEST_USER=pylith-tester \
     INSTALL_DIR=/opt/pylith \
-    PYTHON_VERSION=3.12 \
+    PYTHON_VERSION=3.14 \
     HDF5_INCDIR=/usr/include/hdf5/openmpi \
     HDF5_LIBDIR=/usr/lib/x86_64-linux-gnu/hdf5/openmpi \
     OMPI_MCA_btl_vader_single_copy_mechanism=none
