@@ -70,9 +70,7 @@ ENV  TOPSRC_DIR=${HOME}/src \
     TOPBUILD_DIR=${HOME}/build \
     PATH=${INSTALL_DIR}/bin:$PATH \
     LD_LIBRARY_PATH=${INSTALL_DIR}/lib:${LD_LIBRARY_PATH} \
-    PYTHONPATH=${INSTALL_DIR}/lib/python${PYTHON_VERSION}/site-packages:${PYTHONPATH} \
-    HDF5_LIBDIR=${INSTALL_DIR}/lib \
-    HDF5_INCDIR=${INSTALL_DIR}/include    
+    PYTHONPATH=${INSTALL_DIR}/lib/python${PYTHON_VERSION}/site-packages:${PYTHONPATH}
 RUN mkdir ${INSTALL_DIR} \
     && chown ${TEST_USER} ${INSTALL_DIR} \
     && chgrp ${TEST_USER} ${INSTALL_DIR}
