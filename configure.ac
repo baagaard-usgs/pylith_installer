@@ -758,8 +758,6 @@ if test "$install_proj" = yes ; then
   fi
   AC_SUBST(TIFF_INCDIR)
   AC_SUBST(TIFF_LIBDIR)
-  AM_CONDITIONAL([USE_TIFF_INCLUDE_PATH], [test "$tiff_include_path" = yes])
-  AM_CONDITIONAL([USE_TIFF_LIBRARY_PATH], [test "$tiff_library_path" = yes])
 else
   if test "$with_proj_incdir" != no; then
     PROJ_INCLUDES="-I$with_proj_incdir"
@@ -772,6 +770,8 @@ else
 fi
 AC_SUBST(PROJ_INCLUDES)
 AC_SUBST(PROJ_LDFLAGS)
+AM_CONDITIONAL([USE_TIFF_INCLUDE_PATH], [test "$tiff_include_path" = yes])
+AM_CONDITIONAL([USE_TIFF_LIBRARY_PATH], [test "$tiff_library_path" = yes])
 
 # HDF5
 if test "$install_hdf5" = yes ; then
