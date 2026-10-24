@@ -17,7 +17,7 @@ ONBUILD ENV CERT_PATH=no  CERT_FILE=no
 # ------------------------------------------------------------------------------
 from os-${BUILD_ENV} as os-update
 
-RUN dnf install -y \
+RUN dnf install -y --allowerasing \
         gcc \
         gcc-c++ \
         redhat-rpm-config \
@@ -52,7 +52,6 @@ RUN dnf install -y \
         vim-minimal \
         dnf-plugins-core
 
-RUN alternatives --set python3 /usr/bin/python3.11
 
 # ------------------------------------------------------------------------------
 from os-update as build-env
@@ -103,7 +102,6 @@ RUN ${src_dir}/configure --prefix=${INSTALL_DIR} \
         --enable-hdf5 \
         --enable-h5py \
         --enable-netcdf \
-        --disable-netcdfpy \
         && make -C dependencies \
         && rm -r ${build_dir}
 
