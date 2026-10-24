@@ -25,7 +25,6 @@ RUN apt update \
     git \
     ca-certificates \
     libopenmpi-dev \
-    libopenmpi40 \
     openmpi-bin \
     openmpi-common \
     libhdf5-openmpi-dev \
