@@ -23,8 +23,10 @@ RUN apt-get update \
       git \
       ca-certificates \
       libmpich-dev \
+      libmpich12 \
       mpich \
       libhdf5-mpich-dev \
+      libhdf5-mpich-103-1 \
       sqlite3 \
       libsqlite3-0 \
       libsqlite3-dev \
