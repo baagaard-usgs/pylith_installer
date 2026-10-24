@@ -88,7 +88,7 @@ RUN autoreconf --install --verbose --force
 from build-env as build-deps
 
 WORKDIR ${build_dir}
-RUN ${src_dir}/configure --prefix=${INSTALL_DIR} --with-fetch=curl \
+RUN ${src_dir}/configure --prefix=${INSTALL_DIR} \
         --with-fortran=no --with-make-threads=`nproc` \
         --with-cert-path=${CERT_PATH} --with-cert-file=${CERT_FILE} \
         --disable-cmake \

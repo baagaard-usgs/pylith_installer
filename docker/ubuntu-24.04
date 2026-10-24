@@ -25,7 +25,6 @@ RUN apt update \
     git \
     ca-certificates \
     libopenmpi-dev \
-    libopenmpi3 \
     openmpi-bin \
     openmpi-common \
     libhdf5-openmpi-dev \
@@ -93,7 +92,7 @@ RUN autoreconf --install --verbose --force
 from build-env as build-deps
 
 WORKDIR ${build_dir}
-RUN ${src_dir}/configure --prefix=${INSTALL_DIR} --with-fetch=curl \
+RUN ${src_dir}/configure --prefix=${INSTALL_DIR} \
     --with-fortran=no --enable-force-install --with-make-threads=`nproc` \
     --with-hdf5-incdir=${HDF5_INCDIR} --with-hdf5-libdir=${HDF5_LIBDIR} \
     --with-cert-path=${CERT_PATH} --with-cert-file=${CERT_FILE} \
