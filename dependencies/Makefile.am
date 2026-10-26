@@ -346,9 +346,9 @@ installed_python:
 
 
 python_postinstall: installed_python
-    python3 -m venv $(prefix)
-    $(env_cert) $(PYTHON) -m pip install --no-cache-dir --upgrade pip setuptools certifi
-    $(env_cert) $(PYTHON) -m pip install numpy==$(NUMPY_VER) --no-cache-dir
+	python3 -m venv $(prefix)
+	$(env_cert) $(PYTHON) -m pip install --no-cache-dir --upgrade pip setuptools certifi
+	$(env_cert) $(PYTHON) -m pip install numpy==$(NUMPY_VER) --no-cache-dir
 if INSTALL_OPENSSL
 # Assume certificates only need updating if we installed openssl
 	$(abs_srcdir)/update_certificates.py
