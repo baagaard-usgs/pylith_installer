@@ -331,7 +331,6 @@ class MakeBinaryApp:
                 "--enable-gmsh",
                 "--enable-tiff",
                 "--with-fortran=no",
-                "--with-fetch=curl",
             )
         elif self.os == "Darwin":
             config_args = (
@@ -353,7 +352,6 @@ class MakeBinaryApp:
                 "--enable-gmsh",
                 "--enable-tiff",
                 "--with-fortran=no",
-                "--with-fetch=curl",
             )
 
         else:
