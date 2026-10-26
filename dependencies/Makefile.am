@@ -346,10 +346,9 @@ installed_python:
 
 
 python_postinstall: installed_python
-    # Pin setuptools to 76.1.0 to avoid pkg_resources deprecation warnings.
-	python3 -m venv $(prefix)
-	$(env_cert) $(PYTHON) -m pip install --no-cache-dir --upgrade pip setuptools==76.1.0 certifi
-	$(env_cert) $(PYTHON) -m pip install numpy==$(NUMPY_VER) --no-cache-dir
+    python3 -m venv $(prefix)
+    $(env_cert) $(PYTHON) -m pip install --no-cache-dir --upgrade pip setuptools certifi
+    $(env_cert) $(PYTHON) -m pip install numpy==$(NUMPY_VER) --no-cache-dir
 if INSTALL_OPENSSL
 # Assume certificates only need updating if we installed openssl
 	$(abs_srcdir)/update_certificates.py
@@ -366,7 +365,7 @@ if INSTALL_MATPLOTLIB
 endif
 if INSTALL_PYVISTA
     # Pin to 0.46.2 to avoid installing bz2
-	$(env_cert) $(PYTHON) -m pip install --no-cache-dir pyvista==0.46.2
+	$(env_cert) $(PYTHON) -m pip install --no-cache-dir pyvista==0.49.1
 endif
 if INSTALL_GMSH
 	$(env_cert) $(PYTHON) -m pip install --no-cache-dir gmsh
