@@ -1,22 +1,23 @@
 ARG BUILD_ENV=nocerts
-FROM rockylinux/rockylinux:8 as os-init
+FROM rockylinux/rockylinux:8 AS os-init
 LABEL maintainer="Brad Aagaard <baagaard@usgs.gov>"
 
 ENV BUILD_ENV=${BUILD_ENV}
 
 # ------------------------------------------------------------------------------
-from os-init as os-certs-doi
+FROM os-init AS os-certs-doi
 
 ONBUILD COPY docker/certs/ /usr/share/pki/ca-trust-source/anchors
 ONBUILD RUN update-ca-trust enable
 ONBUILD ENV CERT_PATH=/etc/ssl/certs CERT_FILE=ca-bundle.crt
 
-from os-init as os-nocerts
+FROM os-init AS os-nocerts
 ONBUILD ENV CERT_PATH=no  CERT_FILE=no
 
 # ------------------------------------------------------------------------------
-from os-${BUILD_ENV} as os-update
+FROM os-${BUILD_ENV} AS os-update
 
+# Building openssl requires perl modules
 RUN dnf install -y \
         gcc \
         gcc-c++ \
@@ -28,37 +29,37 @@ RUN dnf install -y \
         automake \
         autoconf \
         libtool \
-        curl \
-        libcurl-devel \
-        openssl \
-        openssl-devel \
         zlib-devel \
         unzip \
         git \
         ca-certificates \
-        python3.11 \
-        python3.11-devel \
-        python3.11-pip \
+        libffi-devel \
+        libxcrypt-devel \
         mpich \
         mpich-devel \
         sqlite \
         sqlite-devel \
         libtiff \
         libtiff-devel \
+        perl-core \
+        perl-IPC-Cmd \
+        perl-Time-Piece \
+        perl-Test-Simple \
+        perl-Text-Template \
         gdb \
         valgrind \
         vim-common \
         vim-minimal \
         dnf-plugins-core
 
-RUN alternatives --set python3 /usr/bin/python3.11
+#RUN alternatives --set python3 /usr/bin/python3.11
 
 # ------------------------------------------------------------------------------
-from os-update as build-env
+FROM os-update AS build-env
 
 ENV TEST_USER=pylith-tester \
         INSTALL_DIR=/opt/pylith \
-        PYTHON_VERSION=3.11
+        PYTHON_VERSION=3.14
 
 # Create 'pylith-tester' user
 RUN useradd --create-home --shell /bin/bash $TEST_USER
@@ -87,13 +88,16 @@ WORKDIR ${src_dir}
 RUN autoreconf --install --verbose --force
 
 # ------------------------------------------------------------------------------
-from build-env as build-deps
+FROM build-env AS build-deps
 
 WORKDIR ${build_dir}
 RUN ${src_dir}/configure --prefix=${INSTALL_DIR} \
         --with-fortran=no --with-make-threads=`nproc` \
         --with-cert-path=${CERT_PATH} --with-cert-file=${CERT_FILE} \
         --enable-cmake \
+        --enable-openssl \
+        --enable-curl \
+        --enable-python \
         --disable-sqlite \
         --enable-catch2 \
         --enable-pcre \
@@ -104,7 +108,7 @@ RUN ${src_dir}/configure --prefix=${INSTALL_DIR} \
         --enable-netcdf \
         --disable-netcdfpy \
         && make -C dependencies \
-        && rm -r ${build_dir}
+        && rm -r ${build_dir}/*
 
 
 WORKDIR $HOME

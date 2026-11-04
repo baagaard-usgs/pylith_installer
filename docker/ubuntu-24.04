@@ -1,11 +1,11 @@
 ARG BUILD_ENV=nocerts
-FROM ubuntu:24.04 as os-update
+FROM ubuntu:24.04 AS os-update
 LABEL maintainer="Brad Aagaard <baagaard@usgs.gov>"
 
 ENV BUILD_ENV=${BUILD_ENV}
 
 
-# We cannot use the mpich package, because it uses ch4:ucx as the device and does not
+# We cannot use the mpich package, because it uses ch4:ucx AS the device and does not
 # seem to work in a Docker container.
 RUN apt update \
     && DEBIAN_FRONTEND="noninteractive" apt install -y --no-install-recommends \
@@ -44,17 +44,17 @@ RUN apt update \
     vim-nox
 
 # ------------------------------------------------------------------------------
-from os-update as build-certs-doi
+FROM os-update AS build-certs-doi
 
 ONBUILD COPY docker/certs/ /usr/local/share/ca-certificates
 ONBUILD RUN update-ca-certificates
 ONBUILD ENV CERT_PATH=/etc/ssl/certs CERT_FILE=DOIRootCA2.pem
 
-from os-update as build-nocerts
+FROM os-update AS build-nocerts
 ONBUILD ENV CERT_PATH=no  CERT_FILE=no
 
 # ------------------------------------------------------------------------------
-from build-${BUILD_ENV} as build-env
+FROM build-${BUILD_ENV} AS build-env
 
 ENV TEST_USER=pylith-tester \
     INSTALL_DIR=/opt/pylith \
@@ -89,7 +89,7 @@ WORKDIR ${src_dir}
 RUN autoreconf --install --verbose --force
 
 # ------------------------------------------------------------------------------
-from build-env as build-deps
+FROM build-env AS build-deps
 
 WORKDIR ${build_dir}
 RUN ${src_dir}/configure --prefix=${INSTALL_DIR} \
@@ -111,6 +111,8 @@ RUN ${src_dir}/configure --prefix=${INSTALL_DIR} \
 
 
 WORKDIR $HOME
+# OpenMPI 4.x
+ENV OMPI_MCA_rmaps_base_oversubscribe=1
 
 LABEL org.opencontainers.image.source=https://github.com/geodynamics/pylith_installer
 LABEL org.opencontainers.image.description="Ubuntu 24.04 CI test environment"

@@ -1,21 +1,21 @@
 ARG BUILD_ENV=nocerts
-FROM rockylinux/rockylinux:10 as os-init
+FROM rockylinux/rockylinux:10 AS os-init
 LABEL maintainer="Brad Aagaard <baagaard@usgs.gov>"
 
 ENV BUILD_ENV=${BUILD_ENV}
 
 # ------------------------------------------------------------------------------
-from os-init as os-certs-doi
+FROM os-init AS os-certs-doi
 
 ONBUILD COPY docker/certs/ /usr/share/pki/ca-trust-source/anchors
-ONBUILD RUN update-ca-trust enable
+ONBUILD RUN update-ca-trust extract
 ONBUILD ENV CERT_PATH=/etc/ssl/certs CERT_FILE=ca-bundle.crt
 
-from os-init as os-nocerts
+FROM os-init AS os-nocerts
 ONBUILD ENV CERT_PATH=no  CERT_FILE=no
 
 # ------------------------------------------------------------------------------
-from os-${BUILD_ENV} as os-update
+FROM os-${BUILD_ENV} AS os-update
 
 RUN dnf install -y --allowerasing \
         gcc \
@@ -29,7 +29,6 @@ RUN dnf install -y --allowerasing \
         autoconf \
         libtool \
         curl \
-        libcurl-devel \
         openssl \
         openssl-devel \
         zlib-devel \
@@ -39,23 +38,20 @@ RUN dnf install -y --allowerasing \
         python3.12 \
         python3.12-devel \
         python3.12-pip \
-        mpich \
-        mpich-devel \
-        sqlite \
-        sqlite-devel \
-        libtiff \
-        libtiff-devel \
+        openmpi \
+        openmpi-devel \
+        proj \
         gdb \
         valgrind \
         vim-common \
-        vim-minimal \
         dnf-plugins-core
+RUN dnf install -y --enablerepo=devel proj-devel
 
 RUN alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1
 
 
 # ------------------------------------------------------------------------------
-from os-update as build-env
+FROM os-update AS build-env
 
 ENV TEST_USER=pylith-tester \
         INSTALL_DIR=/opt/pylith \
@@ -66,7 +62,7 @@ RUN useradd --create-home --shell /bin/bash $TEST_USER
 ENV  HOME=/home/$TEST_USER
 ENV  TOPSRC_DIR=${HOME}/src \
         TOPBUILD_DIR=${HOME}/build \
-        PATH=${INSTALL_DIR}/bin:/usr/lib64/mpich/bin:$PATH \
+        PATH=${INSTALL_DIR}/bin:/usr/lib64/openmpi/bin:$PATH \
         LD_LIBRARY_PATH=$INSTALL_DIR/lib:$INSTALL_DIR/lib64:$LD_LIBRARY_PATH \
         PYTHONPATH=${INSTALL_DIR}/lib/python${PYTHON_VERSION}/site-packages:${INSTALL_DIR}/lib64/python${PYTHON_VERSION}/site-packages:${PYTHONPATH} \
         HDF5_LIBDIR=${INSTALL_DIR}/lib \
@@ -88,18 +84,18 @@ WORKDIR ${src_dir}
 RUN autoreconf --install --verbose --force
 
 # ------------------------------------------------------------------------------
-from build-env as build-deps
+FROM build-env AS build-deps
 
 WORKDIR ${build_dir}
 RUN ${src_dir}/configure --prefix=${INSTALL_DIR} \
         --with-fortran=no --with-make-threads=`nproc` \
         --with-cert-path=${CERT_PATH} --with-cert-file=${CERT_FILE} \
-        --enable-cmake \
         --disable-sqlite \
+        --disable-proj \
+        --enable-cmake \
         --enable-catch2 \
         --enable-pcre \
         --enable-swig \
-        --enable-proj \
         --enable-hdf5 \
         --enable-h5py \
         --enable-netcdf \
@@ -108,6 +104,8 @@ RUN ${src_dir}/configure --prefix=${INSTALL_DIR} \
 
 
 WORKDIR $HOME
+# OpenMPI 5.x
+ENV PRTE_MCA_rmaps_default_mapping_policy=:oversubscribe
 
 LABEL org.opencontainers.image.source=https://github.com/geodynamics/pylith_installer
 LABEL org.opencontainers.image.description="Rocky Linux 10 CI test environment"

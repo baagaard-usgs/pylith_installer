@@ -1,5 +1,5 @@
 ARG BUILD_ENV=nocerts
-FROM fedora:45 as os-update
+FROM fedora:45 AS os-update
 LABEL maintainer="Brad Aagaard <baagaard@usgs.gov>"
 
 ENV BUILD_ENV=${BUILD_ENV}
@@ -51,17 +51,17 @@ RUN dnf install -y \
     vim-common
 
 # ------------------------------------------------------------------------------
-from os-update as build-certs-doi
+FROM os-update AS build-certs-doi
 
 ONBUILD COPY docker/certs/ /usr/share/pki/ca-trust-source/anchors
 ONBUILD RUN update-ca-trust
 ONBUILD ENV CERT_PATH=/etc/ssl/certs CERT_FILE=ca-bundle.crt 
 
-from os-update as build-nocerts
+FROM os-update AS build-nocerts
 ONBUILD ENV CERT_PATH=no  CERT_FILE=no
 
 # ------------------------------------------------------------------------------
-from build-${BUILD_ENV} as build-env
+FROM build-${BUILD_ENV} AS build-env
 
 ENV TEST_USER=pylith-tester \
     INSTALL_DIR=/opt/pylith \
@@ -95,7 +95,7 @@ WORKDIR ${src_dir}
 RUN autoreconf --install --verbose --force
 
 # ------------------------------------------------------------------------------
-from build-env as build-deps
+FROM build-env AS build-deps
 
 WORKDIR ${build_dir}
 RUN ${src_dir}/configure --prefix=${INSTALL_DIR} \
